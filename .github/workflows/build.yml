@@ -40,6 +40,13 @@ jobs:
         run: |
           cd native/mac
           swift build -c release --arch arm64 --arch x86_64
+          # When building multi-arch, SwiftPM puts the universal binary in
+          # .build/apple/Products/Release (not .build/release which is the
+          # single-arch path). Copy to a predictable location for
+          # scripts/build-mac.ts to find.
+          mkdir -p .build/release
+          cp .build/apple/Products/Release/audiotap .build/release/audiotap
+          chmod +x .build/release/audiotap
           ls -la .build/release
           file .build/release/audiotap
 
