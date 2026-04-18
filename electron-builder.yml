@@ -1,0 +1,52 @@
+appId: com.janis.interview-copilot
+productName: Interview Copilot
+copyright: © 2026 janis
+
+directories:
+  output: release/${version}
+  buildResources: resources
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/{.DS_Store,Thumbs.db,.gitkeep}'
+  - '!**/*.{md,markdown}'
+
+asar: true
+asarUnpack:
+  - 'out/main/*.js'
+
+extraResources:
+  - from: resources/baked-openai-key.txt
+    to: baked-openai-key.txt
+    # Bundled secret — simple deployment for personal use. Anyone with the
+    # installer can extract this. Do not redistribute the installer.
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: InterviewCopilot-Setup-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  shortcutName: Interview Copilot
+  createDesktopShortcut: always
+
+mac:
+  # Cross-building from Windows: use `zip` target because `dmg` requires
+  # hdiutil (macOS-only). Universal binary works on both Intel + Apple Silicon.
+  target:
+    - target: zip
+      arch:
+        - universal
+  category: public.app-category.productivity
+  artifactName: InterviewCopilot-${version}-mac-${arch}.${ext}
+  identity: null
+  hardenedRuntime: false
+
+publish: null

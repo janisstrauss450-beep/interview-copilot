@@ -1,0 +1,17 @@
+node_modules
+out
+dist
+release
+.vite
+.DS_Store
+*.log
+.env
+.env.local
+resources/baked-openai-key.txt
+resources/baked-openai-key.txt.personal
+resources/audiotap-mac
+
+# Swift build artefacts (native/mac)
+.build
+.swiftpm
+Package.resolved
