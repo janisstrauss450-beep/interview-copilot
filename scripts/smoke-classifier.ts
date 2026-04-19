@@ -23,6 +23,20 @@ const CASES: TestCase[] = [
   // Judgment call: this is a preamble that immediately precedes a question.
   // LLM defensibly classifies this as question_to_candidate.
   { text: 'Alright, let me ask you something.', expect: 'question_to_candidate' },
+
+  // Follow-up probe without a question mark — interviewer wants a different example.
+  { text: 'Okay, but a different one besides him.', expect: 'question_to_candidate' },
+  { text: 'Give me another example.', expect: 'question_to_candidate' },
+
+  // Interviewer paraphrases / checks for understanding. In interview dynamics
+  // these invite confirmation + expansion — the candidate is expected to reply.
+  { text: "So it's like PayPal, basically.", expect: 'question_to_candidate' },
+  { text: 'So if I understand correctly, you ran the team for two years.', expect: 'question_to_candidate' },
+  { text: 'Okay, so you chose economics over engineering.', expect: 'question_to_candidate' },
+
+  // Pure acknowledgements should still be "other" — no new info, no paraphrase.
+  { text: 'Got it, thanks.', expect: 'other' },
+  { text: 'Right, okay.', expect: 'other' },
 ];
 
 function pad(s: string, n: number): string {

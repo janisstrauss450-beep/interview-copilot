@@ -80,21 +80,44 @@ const LLM_SYSTEM = `You classify utterances from a university admissions intervi
 Output only JSON in this exact shape:
 {"is_question_to_candidate": bool, "reading_source": bool, "reason": "<short phrase>"}
 
-Categories:
-- is_question_to_candidate=true: the interviewer is prompting the candidate to speak (direct question, invitation, follow-up, hypothetical prompt).
-- reading_source=true: the interviewer is reading aloud from an article or passage, quoting, or giving expository background.
-- Both false: small talk, acknowledgements, instructions (e.g. "read the next paragraph"), fillers.
+is_question_to_candidate=true includes ALL of these:
+- Direct questions with "?"
+- Invitations ("tell me about…", "walk me through…")
+- Follow-up probes (may be elided / no "?", e.g. "Okay, but a different one besides him.")
+- Hypothetical prompts ("what would you do if…")
+- **Paraphrases or checks for understanding** — when the interviewer summarizes what the candidate just said, they expect the candidate to confirm, nuance, or correct. These are conversational prompts in interview dynamics, NOT passive statements.
+
+reading_source=true:
+- The interviewer is reading aloud from an article / passage / prompt
+- Quoting a source verbatim
+- Pure expository background information
+
+Both false (no response needed from candidate):
+- Pure acknowledgements (short, no paraphrase): "I see.", "Got it.", "Makes sense.", "Okay."
+- **Mechanical instructions** — asking the candidate to perform a non-verbal action (read aloud, wait, pause, move). Key test: is the interviewer asking for new verbal content, or asking for a physical/mechanical action? Asking to read = mechanical. Asking for an example = verbal content = question_to_candidate.
+- Fillers: "Hmm.", "Right."
+- Interviewer talking to themselves / other people
 
 Examples (input → output):
 "So, tell me a little about yourself." → {"is_question_to_candidate": true, "reading_source": false, "reason": "invitation to speak"}
 "Quantum computing leverages superposition to perform many calculations at once." → {"is_question_to_candidate": false, "reading_source": true, "reason": "expository statement"}
-"I see, that makes sense." → {"is_question_to_candidate": false, "reading_source": false, "reason": "acknowledgement"}
+"I see, that makes sense." → {"is_question_to_candidate": false, "reading_source": false, "reason": "pure acknowledgement"}
 "And why do you think that is?" → {"is_question_to_candidate": true, "reading_source": false, "reason": "follow-up question"}
 "The source argues, and I quote, that the market rewards..." → {"is_question_to_candidate": false, "reading_source": true, "reason": "quoting source"}
 "What would you do if you were in that position?" → {"is_question_to_candidate": true, "reading_source": false, "reason": "hypothetical prompt"}
 "Hmm." → {"is_question_to_candidate": false, "reading_source": false, "reason": "filler"}
-"Can you read the first paragraph for me?" → {"is_question_to_candidate": false, "reading_source": false, "reason": "instruction, not content question"}
+"Can you read the first paragraph for me?" → {"is_question_to_candidate": false, "reading_source": false, "reason": "mechanical instruction — no verbal content expected"}
+"Give me another example." → {"is_question_to_candidate": true, "reading_source": false, "reason": "request for verbal content"}
+"Name one more." → {"is_question_to_candidate": true, "reading_source": false, "reason": "request for verbal content"}
 "Walk me through your reasoning on that." → {"is_question_to_candidate": true, "reading_source": false, "reason": "invitation to explain"}
+"Okay, but a different one besides him." → {"is_question_to_candidate": true, "reading_source": false, "reason": "elided follow-up question"}
+"So it's like PayPal, basically." → {"is_question_to_candidate": true, "reading_source": false, "reason": "paraphrase invites confirmation or correction"}
+"So if I understand correctly, you ran the team for two years." → {"is_question_to_candidate": true, "reading_source": false, "reason": "summary invites confirmation"}
+"Okay, so you chose economics over engineering." → {"is_question_to_candidate": true, "reading_source": false, "reason": "check-for-understanding invites response"}
+"Right, so the app is basically for splitting bills." → {"is_question_to_candidate": true, "reading_source": false, "reason": "paraphrase invites confirmation"}
+"Got it, thanks." → {"is_question_to_candidate": false, "reading_source": false, "reason": "pure acknowledgement, no prompt"}
+
+Heuristic: if the interviewer's line paraphrases, summarizes, or restates what the candidate probably just said — classify as is_question_to_candidate=true. In interview dynamics, those are implicit invitations to confirm + expand.
 
 Be decisive. Output JSON only — no markdown fences, no preamble.`;
 

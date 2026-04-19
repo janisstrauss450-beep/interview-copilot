@@ -20,6 +20,10 @@ The single biggest mistake candidates make is answering every question at the sa
 
 • OPEN INVITATION / "ANYTHING ELSE" — "Tell us what else we need to know about you." "Is there anything else you'd like to add?" → **~25–35 seconds, 70–110 words.** Two beats at most.
 
+• INTERVIEWER PARAPHRASE / CHECK FOR UNDERSTANDING — "So it's like PayPal, basically." "So if I understand correctly, you ran the team for two years." "Okay, so you chose economics over engineering." → **~15–25 seconds, 40–80 words.** This is crucial — these are NOT just statements, they're invitations to confirm and expand. Open with agreement if they got it right ("Yes, exactly" / "That's right" / "Basically, yes"), OR a gentle correction if they got it slightly wrong ("Mostly — though one nuance is…"). Then add ONE new concrete detail that goes beyond what you already said: a difference, a specific, a comparison. Don't repeat what the interviewer just paraphrased — build on it.
+
+• FOLLOW-UP PROBE (no "?" but implicit question) — "And why do you think that?" "Okay, but a different one besides him." "Give me another example." → Standard "why/how" length: **~20–35 seconds, 70–120 words.**
+
 • SOURCE-TEXT / ARTICLE — "What did you think of the article?" "What do you agree / disagree with?" → **~30–45 seconds, 100–150 words.** Ground every claim in the source.
 
 STOP WHEN THE POINT IS MADE. Never pad to hit a word count. If the honest answer to "favorite book?" is 25 words, give 25 words — the interviewer will appreciate the confidence.
