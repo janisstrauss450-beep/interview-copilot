@@ -158,54 +158,54 @@ async function main(): Promise<void> {
    validated, then encrypted in your macOS Keychain.
 
 5) PERMISSIONS you'll be asked for:
-   - Screen Recording — needed for the instant-screenshot hotkey
-     (Ctrl+Shift+I) and for system audio capture. Grant in
-     System Settings → Privacy & Security → Screen Recording.
-   - Microphone — needed for the mic fallback audio mode.
+   - Screen Recording — needed for system audio capture (via
+     ScreenCaptureKit) and the instant-screenshot hotkey (Cmd+Shift+I).
+     Grant in System Settings → Privacy & Security → Screen Recording,
+     then RESTART the app once. macOS doesn't pick up the grant live.
+   - Microphone — needed only if you use the mic fallback audio mode.
      Grant in Privacy & Security → Microphone.
+
+SYSTEM AUDIO CAPTURE
+--------------------
+
+This build bundles a native Swift helper that uses Apple's ScreenCaptureKit
+(macOS 13+) to tap system audio directly. No virtual audio driver
+(BlackHole etc.) is needed. No Audio MIDI Setup fiddling.
+
+The first time you click "Start listening", macOS will ask for Screen
+Recording permission. That's normal — ScreenCaptureKit needs it even for
+audio-only use. Grant it in System Settings → Privacy & Security →
+Screen Recording, then restart the app once. After that, zero config.
+
+If the system-audio capture doesn't work for some reason (e.g. macOS
+older than 13, or the helper didn't bundle correctly), the app
+automatically falls back to Microphone mode.
 
 KNOWN macOS LIMITATIONS
 -----------------------
 
-- SYSTEM AUDIO (LOOPBACK) IS NOT SUPPORTED IN THIS BUILD.
-  Chromium's loopback mode is Windows-only. On macOS you have two options:
+- CODE SIGNING: this build is not signed with an Apple Developer ID,
+  so Gatekeeper will warn on first launch (see step 3 above). For a
+  fully signed + notarized build you need an Apple Developer account.
 
-  A. USE MIC MODE (works out of the box, lower quality): the app will
-     pick up the interviewer's voice through your laptop's mic as it
-     plays from your speakers. Disable echo cancellation / use good
-     speakers / sit close. OK for testing, not ideal for a real call.
-
-  B. INSTALL BLACKHOLE (recommended, free, ~20 MB):
-     https://existential.audio/blackhole/
-     It's a free open-source virtual audio driver. After installing:
-     - Open Audio MIDI Setup → create a Multi-Output Device routing
-       audio to BOTH BlackHole 2ch AND your normal speakers.
-     - In your meeting app (Zoom/Meet), set Speaker to the Multi-Output.
-     - In Interview Copilot, select "Microphone" mode and pick
-       "BlackHole 2ch" as the input source.
-     Audio now flows: meeting → BlackHole → app, while you still hear
-     it on your speakers.
-
-- CODE SIGNING: this build is unsigned. macOS will warn on first run.
-  For a signed + notarized build, the source needs to be rebuilt on a
-  Mac with an Apple Developer ID.
-
-- CONTENT PROTECTION (hide from screen share): should work via
+- CONTENT PROTECTION (hide from screen share): works via
   Electron's setContentProtection(true), which maps to
-  NSWindow.sharingType = .none on macOS. Verify with the Ctrl+Shift+V
+  NSWindow.sharingType = .none on macOS. Verify with the Cmd+Shift+V
   toggle before a real call.
 
 THINGS THAT WORK OUT OF THE BOX
 -------------------------------
+- System audio capture (ScreenCaptureKit via bundled Swift helper)
+- Microphone capture (fallback / alternative)
 - Question detection + classifier
 - Answer generation (gpt-5.4 → fallback chain)
 - Skeleton bullets
-- Screenshot OCR (Ctrl+Shift+I) — grants Screen Recording permission
-- File picker upload (Ctrl+Shift+U)
+- Screenshot OCR (Cmd+Shift+I) — grants Screen Recording permission
+- File picker upload (Cmd+Shift+U)
 - Hotkeys (Cmd+Shift+R/S/L/H/P/V/U/I)
 - Transcript persistence + Debrief view
 - Live teleprompter overlay
-- Hide-from-screen-share toggle
+- Hide-from-screen-share toggle (Cmd+Shift+V)
 
 ANY ISSUES, send a screenshot of the Transcription (debug) panel in
 the setup window — that's where transcription + classifier events are
