@@ -154,16 +154,31 @@ async function main(): Promise<void> {
 
 2) Drag it into /Applications (or anywhere you like).
 
-3) First launch will be blocked by Gatekeeper because this build is not
-   signed with an Apple Developer certificate. Fix:
-   - Right-click (or Ctrl-click) the .app
-   - Choose "Open"
-   - Click "Open" in the "Apple could not verify..." dialog
-   - Only needed once.
+3) FIRST LAUNCH: macOS will almost certainly block this unsigned build.
+   There are two common dialogs you might see; both are fixable.
 
-   If macOS still refuses:
-   - System Settings → Privacy & Security → scroll down →
-     "Interview Copilot was blocked..." → click "Open Anyway".
+   (a) "Apple could not verify Interview Copilot is free of malware"
+       → Cancel it, then right-click (or Ctrl-click) the .app,
+         choose "Open", and click "Open" in the dialog that follows.
+       → Only needed once.
+
+   (b) "Interview Copilot is damaged and can't be opened.
+        You should move it to the Bin."  (This is the one you'll most
+        likely see on macOS 15 Sequoia or newer — Apple made this more
+        aggressive.)
+       → Click Cancel. DO NOT move to Bin.
+       → Go to: System Settings → Privacy & Security
+       → Scroll to the bottom; you'll see a line saying
+         "Interview Copilot was blocked because it is not from an
+          identified developer."
+       → Click "Open Anyway". Enter your Mac admin password when prompted.
+       → A new dialog appears: click "Open". Done.
+       → From now on, the app launches normally with a double-click.
+
+   If option (b) still refuses, open Terminal and run:
+       xattr -cr "/Applications/Interview Copilot.app"
+   (or the path where you kept the .app). That strips the download
+   quarantine. Then double-click normally.
 
 4) On first run the app will ask for an OpenAI API key. Get one at
    platform.openai.com/api-keys. Paste it when prompted — it's
