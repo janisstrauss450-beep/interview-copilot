@@ -95,6 +95,11 @@ html, body, #root {
   font-size: 9.5px;
   color: var(--text-dim);
   letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.hints-prefix {
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .rec {

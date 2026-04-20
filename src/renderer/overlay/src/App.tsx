@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { OverlayEvent } from '../../../shared/types.js';
-import { kbd } from '../../shared/kbd.js';
+import { kbd, MOD_SHIFT } from '../../shared/kbd.js';
 
 interface AnswerState {
   requestId: number | null;
@@ -177,7 +177,8 @@ function StatusStrip({
       )}
       <span className="drag-spacer" />
       <span className="mono hints">
-        {kbd('R')} regen · {kbd('S')} shorter · {kbd('L')} longer · {kbd('I')} snap · {kbd('U')} source · {kbd('V')} hide
+        <span className="hints-prefix">{MOD_SHIFT}:</span>{' '}
+        R regen · S shorter · L longer · I snap · U source · V hide
       </span>
       <button
         className={`strip-btn shield ${protectedFromShare ? 'shield-on' : 'shield-off'}`}
