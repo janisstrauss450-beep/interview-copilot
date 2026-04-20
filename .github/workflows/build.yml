@@ -118,13 +118,19 @@ jobs:
         with:
           name: win-installer
           path: artifacts/win
+      - name: Flatten artifact directories
+        run: |
+          # Upload-artifact v4 preserves directory structure under the common
+          # root of the glob. Since we upload with `release/**/*.zip`, zips
+          # end up at artifacts/mac/release/<version>/*.zip. Flatten into a
+          # single dir so softprops' non-recursive glob can find them.
+          mkdir -p release-files
+          find artifacts -type f \( -name '*.zip' -o -name '*.exe' -o -name '*.txt' \) -exec cp {} release-files/ \;
+          ls -la release-files/
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            artifacts/mac/*.zip
-            artifacts/mac/*.txt
-            artifacts/win/*.exe
+          files: release-files/*
           draft: false
           prerelease: false
           generate_release_notes: true
