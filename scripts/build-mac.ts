@@ -6,8 +6,12 @@ import archiver from 'archiver';
 import { createWriteStream } from 'node:fs';
 
 const ROOT = process.cwd();
-const OUT_DIR = join(ROOT, 'release', '0.1.0');
-const STAGING = join(OUT_DIR, 'mac-staging');
+
+// Version comes from package.json so filenames track the real version.
+async function readVersion(): Promise<string> {
+  const raw = await readFile(join(ROOT, 'package.json'), 'utf8');
+  return (JSON.parse(raw).version as string) || '0.0.0';
+}
 
 async function zipDir(srcDir: string, destZip: string, topLevelName: string): Promise<void> {
   await new Promise<void>((resolve, reject) => {
@@ -22,6 +26,10 @@ async function zipDir(srcDir: string, destZip: string, topLevelName: string): Pr
 }
 
 async function main(): Promise<void> {
+  const VERSION = await readVersion();
+  const OUT_DIR = join(ROOT, 'release', VERSION);
+  const STAGING = join(OUT_DIR, 'mac-staging');
+
   // 0. Clean staging.
   if (existsSync(STAGING)) await rm(STAGING, { recursive: true, force: true });
   await mkdir(STAGING, { recursive: true });
@@ -122,7 +130,7 @@ async function main(): Promise<void> {
   }
 
   const archLabel = arch === 'arm64' ? 'AppleSilicon' : 'Intel';
-  const zipPath = join(OUT_DIR, `InterviewCopilot-0.1.0-mac-${archLabel}.zip`);
+  const zipPath = join(OUT_DIR, `InterviewCopilot-${VERSION}-mac-${archLabel}.zip`);
   console.log(`→ zipping ${arch} → ${zipPath}`);
   if (!existsSync(appBundlePath)) {
     throw new Error(`expected ${appBundlePath} to exist after packaging`);
@@ -138,9 +146,9 @@ async function main(): Promise<void> {
 
 0) WHICH ZIP TO PICK:
    - M1 / M2 / M3 / M4 Mac (2020 or later):
-       InterviewCopilot-0.1.0-mac-AppleSilicon.zip
+       InterviewCopilot-${VERSION}-mac-AppleSilicon.zip
    - Intel Mac (pre-2020):
-       InterviewCopilot-0.1.0-mac-Intel.zip
+       InterviewCopilot-${VERSION}-mac-Intel.zip
 
 1) Unzip the archive. You'll get "Interview Copilot.app".
 

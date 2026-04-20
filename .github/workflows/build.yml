@@ -56,15 +56,15 @@ jobs:
         run: pnpm dist:mac
 
       - name: List release artifacts
-        run: ls -la release/0.1.0/
+        run: ls -la release/
 
       - name: Upload Mac artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mac-builds
           path: |
-            release/0.1.0/*.zip
-            release/0.1.0/*.txt
+            release/**/*.zip
+            release/**/*.txt
 
   # ─────────────────────────────────────────────────────────────
   # Windows: build NSIS installer.
@@ -92,13 +92,13 @@ jobs:
 
       - name: List release artifacts
         shell: bash
-        run: ls -la release/0.1.0/
+        run: ls -la release/
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: win-installer
-          path: release/0.1.0/InterviewCopilot-Setup-*.exe
+          path: release/**/InterviewCopilot-Setup-*.exe
 
   # ─────────────────────────────────────────────────────────────
   # Release: attach artifacts from both builds when a tag is pushed.

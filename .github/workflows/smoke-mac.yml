@@ -50,13 +50,13 @@ jobs:
       - name: Launch app headfully
         run: |
           set -e
-          APP_DIR="release/0.1.0/mac-staging/Interview Copilot-darwin-arm64"
-          APP="$APP_DIR/Interview Copilot.app"
-          if [ ! -d "$APP" ]; then
-            echo "ERROR: .app not found at $APP"
+          APP=$(find release -name "Interview Copilot.app" -type d | head -1)
+          if [ -z "$APP" ] || [ ! -d "$APP" ]; then
+            echo "ERROR: .app not found"
             find release -name "*.app" -type d
             exit 1
           fi
+          echo "found app at: $APP"
           # Strip quarantine if present (belt-and-suspenders; fresh builds on
           # the runner won't have it anyway).
           xattr -cr "$APP" || true
@@ -125,4 +125,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-smoke-build
-          path: release/0.1.0/*.zip
+          path: release/**/*.zip
