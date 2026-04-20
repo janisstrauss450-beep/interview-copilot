@@ -60,9 +60,15 @@ jobs:
           # Strip quarantine if present (belt-and-suspenders; fresh builds on
           # the runner won't have it anyway).
           xattr -cr "$APP" || true
-          # Launch in the background; don't block.
-          open "$APP"
-          echo "launched at $(date)"
+          # Launch the inner binary directly so we can pass env vars. Our
+          # content-protection escape hatch makes the windows visible to
+          # screencapture during CI only.
+          INTERVIEW_COPILOT_DISABLE_CONTENT_PROTECTION=1 \
+            "$APP/Contents/MacOS/Interview Copilot" > app.stdout.log 2> app.stderr.log &
+          APP_PID=$!
+          echo "launched pid=$APP_PID at $(date)"
+          # Record pid for later kill step.
+          echo "$APP_PID" > app.pid
 
       - name: Capture screenshots (1s, 5s, 10s, 20s)
         run: |
@@ -92,8 +98,20 @@ jobs:
         run: |
           osascript -e 'tell application "Interview Copilot" to quit' || true
           sleep 2
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" 2>/dev/null || true
+          fi
           killall "Interview Copilot" 2>/dev/null || true
           pkill -f "audiotap" 2>/dev/null || true
+
+      - name: Upload app stdio logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-smoke-app-logs
+          path: |
+            app.stdout.log
+            app.stderr.log
 
       - name: Upload screenshots
         if: always()

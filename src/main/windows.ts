@@ -5,7 +5,10 @@ const isDev = !!process.env.ELECTRON_RENDERER_URL;
 
 let setupWindowRef: BrowserWindow | null = null;
 let overlayWindowRef: BrowserWindow | null = null;
-let protectionEnabled = true;
+// CI smoke tests set INTERVIEW_COPILOT_DISABLE_CONTENT_PROTECTION=1 so the
+// windows are visible to our own screencapture. Never set this in production.
+let protectionEnabled =
+  process.env.INTERVIEW_COPILOT_DISABLE_CONTENT_PROTECTION !== '1';
 
 export function getSetupWindow(): BrowserWindow | null {
   return setupWindowRef;
