@@ -61,7 +61,12 @@ async function main(): Promise<void> {
     quiet: false,
     electronVersion: pkg.devDependencies.electron.replace(/^[\^~]/, ''),
     ignore: [
+      // Directory-level excludes — keep all built assets under `out/`.
+      // (No bare-extension filters like /\.css$/ here; those accidentally
+      // strip the built CSS in out/renderer/assets, leaving the app
+      // completely unstyled.)
       /^\/\.git($|\/)/,
+      /^\/\.github($|\/)/,
       /^\/\.vite($|\/)/,
       /^\/\.idea($|\/)/,
       /^\/\.vscode($|\/)/,
@@ -73,15 +78,14 @@ async function main(): Promise<void> {
       /^\/tests($|\/)/,
       /^\/tools($|\/)/,
       /^\/\.env(\..+)?$/,
+      /^\/\.npmrc$/,
+      /^\/\.gitattributes$/,
       /^\/tsconfig.*\.json$/,
       /^\/electron\.vite\.config\.ts$/,
       /^\/electron-builder\.yml$/,
       /^\/README\.md$/,
       /^\/PLAN\.md$/,
       /\.map$/,
-      /\.ts$/,
-      /\.tsx$/,
-      /\.css$/,
     ],
   });
 
