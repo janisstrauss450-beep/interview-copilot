@@ -1,0 +1,110 @@
+name: Smoke test (macOS)
+
+# Manual-only workflow: builds the Mac app on a GitHub macOS runner, launches
+# it headfully, captures a screenshot of the setup window at ~10s after boot,
+# uploads everything as artifacts. Use this to sanity-check that a new build
+# at least launches and renders on real macOS hardware before sending to a
+# friend for real testing.
+#
+# Trigger from: GitHub → Actions → "Smoke test (macOS)" → Run workflow.
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: smoke-mac-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile Swift helper
+        run: |
+          cd native/mac
+          swift build -c release --arch arm64 --arch x86_64
+          mkdir -p .build/release
+          cp .build/apple/Products/Release/audiotap .build/release/audiotap
+          chmod +x .build/release/audiotap
+
+      - name: Build Mac .app (arm64 only — the runner is Apple Silicon)
+        env:
+          MAC_ARCH: arm64
+        run: pnpm dist:mac
+
+      - name: Launch app headfully
+        run: |
+          set -e
+          APP_DIR="release/0.1.0/mac-staging/Interview Copilot-darwin-arm64"
+          APP="$APP_DIR/Interview Copilot.app"
+          if [ ! -d "$APP" ]; then
+            echo "ERROR: .app not found at $APP"
+            find release -name "*.app" -type d
+            exit 1
+          fi
+          # Strip quarantine if present (belt-and-suspenders; fresh builds on
+          # the runner won't have it anyway).
+          xattr -cr "$APP" || true
+          # Launch in the background; don't block.
+          open "$APP"
+          echo "launched at $(date)"
+
+      - name: Capture screenshots (1s, 5s, 10s, 20s)
+        run: |
+          mkdir -p smoke-screenshots
+          for delay in 1 5 10 20; do
+            sleep_needed=$((delay - PREV))
+            sleep $sleep_needed
+            # -x = suppress camera-click sound, -C = include cursor
+            screencapture -x -C "smoke-screenshots/screenshot-${delay}s.png"
+            echo "screenshot at ${delay}s captured"
+            PREV=$delay
+          done
+        env:
+          PREV: 0
+
+      - name: Dump running processes
+        if: always()
+        run: |
+          echo "=== processes with 'Interview' or 'Copilot' or 'audiotap' in name ==="
+          ps aux | grep -iE 'interview|copilot|audiotap' | grep -v grep || true
+          echo ""
+          echo "=== window list (via CGWindowListCopyWindowInfo is Swift-only, using AppleScript instead) ==="
+          osascript -e 'tell application "System Events" to get name of every process whose background only is false' || true
+
+      - name: Quit the app
+        if: always()
+        run: |
+          osascript -e 'tell application "Interview Copilot" to quit' || true
+          sleep 2
+          killall "Interview Copilot" 2>/dev/null || true
+          pkill -f "audiotap" 2>/dev/null || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-smoke-screenshots
+          path: smoke-screenshots/
+
+      - name: Upload the built .app (arm64) so you can download + inspect
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-smoke-build
+          path: release/0.1.0/*.zip
