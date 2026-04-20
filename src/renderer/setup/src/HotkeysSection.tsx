@@ -3,7 +3,7 @@ import type { HotkeyBindingInfo } from '../../../shared/types.js';
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
 
-function renderAccelerator(accel: string): string {
+function acceleratorLabel(accel: string): string {
   return accel
     .replace('CommandOrControl', isMac ? '⌘' : 'Ctrl')
     .replace('Shift', '⇧')
@@ -38,7 +38,7 @@ export function HotkeysSection(): JSX.Element {
                   className={`hotkey-chip mono${b.registered ? '' : ' hotkey-chip-err'}`}
                   title={b.error ?? 'registered'}
                 >
-                  {renderAccelerator(b.accelerator)}
+                  {acceleratorLabel(b.accelerator)}
                 </span>
               </li>
             ))}

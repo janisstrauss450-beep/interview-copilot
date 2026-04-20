@@ -10,6 +10,7 @@ import { AudioSection } from './AudioSection.js';
 import { TranscriptionSection } from './TranscriptionSection.js';
 import { HotkeysSection } from './HotkeysSection.js';
 import { DebriefSection } from './DebriefSection.js';
+import { kbd } from '../../shared/kbd.js';
 
 const FIRST_RUN_SOURCES_OK = new Set<ApiKeyStatus['source']>([
   'env:OPENAI_API_KEY',
@@ -260,19 +261,20 @@ function ProtectionBanner(): JSX.Element {
     <div
       className={`protect-banner ${shielded ? 'shield-on' : 'shield-off'}`}
       onClick={() => window.api.overlayToggleProtection()}
-      title="⌘⇧V or click to toggle"
+      title={`${kbd('V')} or click to toggle`}
     >
       <span className="protect-icon">{shielded ? '◉' : '◎'}</span>
       <span className="protect-text">
         {shielded ? (
           <>
             <strong>Hidden from screen share.</strong> Both this window and the overlay are
-            excluded from Zoom / Meet / Teams capture. <span className="mono dim">⌘⇧V to toggle</span>
+            excluded from Zoom / Meet / Teams capture.{' '}
+            <span className="mono dim">{kbd('V')} to toggle</span>
           </>
         ) : (
           <>
             <strong>VISIBLE on screen share.</strong> Both windows will appear if you share
-            your screen. <span className="mono dim">⌘⇧V to hide</span>
+            your screen. <span className="mono dim">{kbd('V')} to hide</span>
           </>
         )}
       </span>

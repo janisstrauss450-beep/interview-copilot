@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { OverlayEvent } from '../../../shared/types.js';
+import { kbd } from '../../shared/kbd.js';
 
 interface AnswerState {
   requestId: number | null;
@@ -175,14 +176,16 @@ function StatusStrip({
         </span>
       )}
       <span className="drag-spacer" />
-      <span className="mono hints">⌘⇧R regen · ⌘⇧S shorter · ⌘⇧L longer · ⌘⇧I snap · ⌘⇧U source · ⌘⇧V hide</span>
+      <span className="mono hints">
+        {kbd('R')} regen · {kbd('S')} shorter · {kbd('L')} longer · {kbd('I')} snap · {kbd('U')} source · {kbd('V')} hide
+      </span>
       <button
         className={`strip-btn shield ${protectedFromShare ? 'shield-on' : 'shield-off'}`}
         onClick={() => window.api.overlayToggleProtection()}
         title={
           protectedFromShare
-            ? 'Whole app hidden from screen share (⌘⇧V). Click to make visible.'
-            : 'VISIBLE on screen share — both windows (⌘⇧V). Click to hide.'
+            ? `Whole app hidden from screen share (${kbd('V')}). Click to make visible.`
+            : `VISIBLE on screen share — both windows (${kbd('V')}). Click to hide.`
         }
       >
         {protectedFromShare ? '◉' : '◎'}
@@ -190,7 +193,7 @@ function StatusStrip({
       <button
         className="strip-btn regen"
         onClick={() => window.api.overlayRegenerate()}
-        title="Regenerate (⌘⇧R)"
+        title={`Regenerate (${kbd('R')})`}
         disabled={!state.question}
       >
         ↻

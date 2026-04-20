@@ -267,7 +267,7 @@ function registerDefaultHotkeys() {
       id: 'mute',
       label: 'Mute listening',
       accelerator: 'CommandOrControl+Shift+P',
-      description: 'Pause audio capture + transcription (⌘⇧M collides with Zoom).',
+      description: 'Pause audio capture + transcription (P not M to avoid Zoom mute-self conflict).',
       action: () => toggleTranscriptionMute(),
     },
     {
